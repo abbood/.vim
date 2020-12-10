@@ -1,11 +1,14 @@
 syntax enable
 set background=dark
+set encoding=UTF-8
 
 
 let g:spacegray_low_contrast = 1
 
-colorscheme Spacegray
+
+colorscheme spacegray
 " colorscheme hybrid_material
+"colorscheme sonokai
 
 " https://stackoverflow.com/a/1764336/766570
 let mapleader = ","
@@ -16,7 +19,6 @@ set hlsearch
 set ignorecase
 
 
-
 hi Search cterm=NONE ctermfg=black ctermbg=172
 
 autocmd FileType javascript setlocal tabstop=2 softtabstop=2 shiftwidth=2
@@ -24,6 +26,7 @@ autocmd FileType sh setlocal tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType php setlocal tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType java setlocal tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType cucumber setlocal tabstop=4 softtabstop=4 shiftwidth=4
+autocmd FileType typescript setlocal tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType swift setlocal tabstop=4 softtabstop=4 shiftwidth=4
 autocmd FileType yaml setlocal tabstop=2 softtabstop=2 shiftwidth=2
 
@@ -44,21 +47,63 @@ set autoindent
 
 set nocompatible              " be iMproved, required
 set number
-filetype off                  " required
+filetype plugin indent on
+
 
 let g:ale_emit_conflict_warnings = 0
 
+" to quickly remove errors from ts
+" https://github.com/w0rp/ale#faq-disable-linters
+" let g:ale_linters_explicit = 1
+
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\   'typescript': ['tslint'],
+\   'php': ['php'],
+\}
+
+let g:tagbar_type_typescript = {
+  \ 'ctagsbin' : 'tstags',
+  \ 'ctagsargs' : '-f-',
+  \ 'kinds': [
+    \ 'e:enums:0:1',
+    \ 'f:function:0:1',
+    \ 't:typealias:0:1',
+    \ 'M:Module:0:1',
+    \ 'I:import:0:1',
+    \ 'i:interface:0:1',
+    \ 'C:class:0:1',
+    \ 'm:method:0:1',
+    \ 'p:property:0:1',
+    \ 'v:variable:0:1',
+    \ 'c:const:0:1',
+  \ ],
+  \ 'sort' : 0
+\ }
+
+
+
+
+
+
+" https://github.com/w0rp/ale#faq-disable-linters
+" let g:ale_linters_explicit = 1
+" In ~/.vim/vimrc, or somewhere similar.
+
 " VUNDLE
 " set the runtime path to include Vundle and initialize
+"
 set rtp+=~/.vim/bundle/Vundle.vim
+
 call vundle#begin()
 " alternatively, pass a path where Vundle should install plugins
 "call vundle#begin('~/some/path/here')
 " Plugin 'ascenator/L9', {'name': 'newL9'}
+"
+Plugin 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plugin 'junegunn/fzf.vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'burnettk/vim-angular'
-Plugin 'junegunn/fzf'
-Plugin 'junegunn/fzf.vim'
 Plugin 'vim-scripts/AutoComplPop'
 Plugin 'vim-scripts/cSyntaxAfter'
 Plugin 'w0ng/vim-hybrid'
@@ -80,29 +125,38 @@ Plugin 'adoy/vim-php-refactoring-toolbox'
 Plugin 'dhruvasagar/vim-zoom'
 Plugin 'keith/swift.vim'
 Plugin 'kristijanhusak/vim-hybrid-material'
+" linting
+Plugin 'w0rp/ale'
+Plugin 'udalov/kotlin-vim'
 "Plugin 'vim-syntastic/syntastic'
 " see https://dev.to/allanmacgregor/vim-is-the-perfect-ide-e80
 "Plugin 'vim-syntastic/syntastic'
 "Plugin 'Townk/vim-autoclose'
 "Plugin 'phpvim/phpcd.vim'
+Plugin 'leafgarland/typescript-vim'
+Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plugin 'ryanoasis/vim-devicons'
+Plugin 'Shougo/vimproc'
+Plugin 'Quramy/tsuquyomi'
+Plugin 'joereynolds/gtags-scope'
+Plugin 'sainnhe/sonokai'
+Plugin 'cohama/agit.vim'
+"Plugin 'jason0x43/vim-js-indent'
 
 
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 
-
-
-filetype plugin indent on    " required
 set tags=./tags,tags;$HOME
 set runtimepath^=~/.vim/bundle/ctrlp.vim
 
-set grepprg=grep\ -nriI\ --exclude=tags\ --exclude-dir=vendor 
+set grepprg=grep\ -nriI\ --exclude=tags\ --exclude-dir=vendor
 
 " The Silver Searcher
 if executable('ag')
   " Use ag over grep
-  let &grepprg = "ag --nogroup --nocolor --ignore wiki --ignore tags --ignore dist --ignore tests --ignore seeds -w"
+  let &grepprg = "ag --nogroup --nocolor --ignore wiki --ignore tags --ignore dist --ignore tests --ignore seeds --ignore migrations -w"
 
   " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
   let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
@@ -112,7 +166,8 @@ if executable('ag')
 endif
 
 " bind K to grep word under cursor
-nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR><ENTER>
+
 
 " command -nargs=+ -complete=file -bar Ag silent! grep! <args>|cwindow|redraw!
 " above replaced with
@@ -128,8 +183,10 @@ command -nargs=+ -complete=file Ag call Ag(<q-args>)
 " bind \ (backward slash) to grep shortcut
 nnoremap \ :Ag<SPACE>
 
-" bind K to grep word under cursor
-nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+
+" bind L to grep word under cursor for current file only
+nnoremap L :vim <C-R><C-W> %<CR>:cw<CR>
+"nnoremap L :vim <C-R><C-W> %<CR>:copen<CR>
 
 " https://stackoverflow.com/a/42218001/766570
 nmap <F8> :TagbarToggle<CR>
@@ -142,10 +199,15 @@ map <C-n> :NERDTreeToggle<CR>
 
 map <C-j> :FZF<CR>
 map <C-f> :Buffers<CR>
+map <C-h> :BTags<CR>
+map <C-g> :Tags<CR>
 
 " arabic support
-map <C-g> :set rightleft<CR>
-map <C-h> :set norightleft<CR>
+"map <C-g> :set rightleft<CR>
+"map <C-h> :set norightleft<CR>
+
+" agit show
+nnoremap <C-i> :Agit<CR>
 
 noremap <F9> :vertical botright copen 60<cr>
 "noremap <F10> :copen 40<cr>
@@ -158,7 +220,6 @@ map <C-1> :copen 40<cr>
 set splitbelow
 set splitright
 
-
 set clipboard=unnamed
 
 " buffers binding
@@ -168,7 +229,7 @@ set clipboard=unnamed
 " jump to definition on vertical split
 " https://vi.stackexchange.com/a/14821/14510
 :nnoremap <c-b> :vert winc ]<CR>
-:nnoremap <leader>-b winc ]<CR>
+:nnoremap <leader>-j winc ]<CR>
 
 " vim debugging
 " https://ccpalettes.wordpress.com/2013/06/03/remote-debugging-php-with-vim-and-xdebug/
@@ -181,8 +242,9 @@ autocmd FileType php nnoremap <C-p> :call PhpDocSingle()<CR>
 autocmd FileType php vnoremap <C-p> :call PhpDocRange()<CR>
 
 " debugger
-map <C-g> :Breakpoint
+"map <C-g> :Breakpoint
 map <C-e> :VdebugEval
+
 
 " to get number of occurences of a string
 "https://vi.stackexchange.com/a/15476/14510
@@ -210,15 +272,6 @@ let g:multi_cursor_prev_key            = '<C-p>'
 let g:multi_cursor_skip_key            = '<C-x>'
 let g:multi_cursor_quit_key            = '<Esc>'
 
+let g:python3_host_prog='/Users/abdullah/.pyenv/shims/python3'
 
-" see https://stackoverflow.com/a/20745710/766570
-" and print_colors script:
-" 
-" function print_colors()
-" {
-"    for i in {0..255} ; do
-"      printf '\x1b[38;5;${i}mcolour${i} '
-"    done
-" }
-highlight LineNr ctermfg=246 ctermbg=239 guibg=#262626 guifg=#494949
 
