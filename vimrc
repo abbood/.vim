@@ -32,6 +32,11 @@ autocmd FileType yaml setlocal tabstop=2 softtabstop=2 shiftwidth=2
 
 
 
+"#autocmd FileType php colorscheme spacegray
+autocmd FileType php colorscheme gruvbox
+autocmd FileType java colorscheme gruvbox
+autocmd FileType kotlin colorscheme gruvbox
+
 "set tabstop=2       " The width of a TAB is set to 4.
                     " Still it is a \t. It is just that
                     " Vim will interpret it to be having
@@ -114,10 +119,13 @@ Plugin 'Raimondi/delimitMate'
 Plugin 'severin-lemaignan/vim-minimap'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
-"Plugin 'vim-scripts/DBGp-Remote-Debugger-Interface'
+Plugin 'vim-scripts/DBGp-Remote-Debugger-Interface'
 Plugin 'joonty/vdebug'
 Plugin 'tpope/vim-unimpaired'
 Plugin 'ajh17/Spacegray.vim'
+Plugin 'morhetz/gruvbox'
+Plugin 'jnurmine/Zenburn'
+Plugin 'ErichDonGubler/vim-sublime-monokai'
 Plugin 'vim-scripts/Conque-Shell'
 Bundle 'joonty/vim-do'
 Plugin 'Rican7/php-doc-modded'
@@ -127,7 +135,6 @@ Plugin 'keith/swift.vim'
 Plugin 'kristijanhusak/vim-hybrid-material'
 " linting
 Plugin 'w0rp/ale'
-Plugin 'udalov/kotlin-vim'
 "Plugin 'vim-syntastic/syntastic'
 " see https://dev.to/allanmacgregor/vim-is-the-perfect-ide-e80
 "Plugin 'vim-syntastic/syntastic'
@@ -141,6 +148,9 @@ Plugin 'Quramy/tsuquyomi'
 Plugin 'joereynolds/gtags-scope'
 Plugin 'sainnhe/sonokai'
 Plugin 'cohama/agit.vim'
+Plugin 'uiiaoo/java-syntax.vim'
+Plugin 'esensar/neovim-kotlin'
+
 "Plugin 'jason0x43/vim-js-indent'
 
 
@@ -231,9 +241,6 @@ set clipboard=unnamed
 :nnoremap <c-b> :vert winc ]<CR>
 :nnoremap <leader>-j winc ]<CR>
 
-" vim debugging
-" https://ccpalettes.wordpress.com/2013/06/03/remote-debugging-php-with-vim-and-xdebug/
-" https://vi.stackexchange.com/questions/14159/how-to-point-xdebug-back-to-vim-on-local-host/14161#14161
 
 " see https://stackoverflow.com/a/8950400/766570
 " " PHP documenter script bound to Control-P
@@ -241,8 +248,16 @@ autocmd FileType php inoremap <C-p> <ESC>:call PhpDocSingle()<CR>i
 autocmd FileType php nnoremap <C-p> :call PhpDocSingle()<CR>
 autocmd FileType php vnoremap <C-p> :call PhpDocRange()<CR>
 
+" vim debugging
+" https://ccpalettes.wordpress.com/2013/06/03/remote-debugging-php-with-vim-and-xdebug/
+" https://vi.stackexchange.com/questions/14159/how-to-point-xdebug-back-to-vim-on-local-host/14161#14161
+
+let g:vdebug_options = {}
+let g:vdebug_options["port"] = 9000
+
 " debugger
 "map <C-g> :Breakpoint
+:nnoremap <leader>-g :Breakpoint 
 map <C-e> :VdebugEval
 
 
